@@ -1,0 +1,32 @@
+Dataset:  treemoist.dat  
+
+Source: J.J. McDermott (1941). "The Effect of the Method of Cutting on the
+Moisture Content of Samples from Tree Branches," American Journal of Botany,
+Vol.28,#6,pp506-508.
+
+Description: Moisture Content of Tree Branches (10x%of dry weight of Sample).
+Four species, 5 branches/species, 3 sample locations/branch, two transpiration
+conditions
+
+Species:
+1=Loblolly Pine
+2=Shortleaf Pine
+3=Yellow Poplar
+4=Red Gum
+
+Branch Locations:
+1=Central
+2=Distal
+3=Proximal
+
+Transpiration Types:
+1=Rapid  (Hot, dry, sunny day)
+2=Slow   (Cool, moist, cloudy day)
+
+
+Variables/Columns:
+Species     8
+Branch(Rep w/in species)   16
+Location on Branch    24
+Transpiration Type   32
+Moisture Content (% of Dry wt times 10)
