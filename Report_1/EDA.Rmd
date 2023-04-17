@@ -3,13 +3,12 @@ title: "EDA"
 output: html_notebook
 ---
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+library(ggplot2)
+library(xtable)
+library(tidyr)
+library(dplyr)
+```
 
 ```{r}
 setwd("/Users/xuyixuan/Downloads/Project/MATH493-Applied-Biostats-Project/Report_1")
@@ -18,18 +17,96 @@ treemoist <- read.table("treemoist.dat",
                          col.names = c("species", "branch", "branch_location", "transpiration", "moist_content"))
 ```
 
+Uni-variate numerical
 
 ```{r}
-
-treemoist
-
+summary(treemoist$moist_content)
 ```
 
 ```{r}
-tapply(treemoist$moist_content, 
-       list(treemoist$species, treemoist$branch, treemoist$branch_location,treemoist$transpiration), 
-       mean)
+# Convert the dataframe to long format
+treemoist_long <- treemoist %>%
+  gather(key = "variable", value = "value", -moist_content)
 
-tapply(treemoist$moist_content, list(weightgain$source, weightgain$type), sd)
+# Define custom labels for subplots
+custom_labels <- c("Branch", "Branch Location", "Species", "Transpiration")
+
+# Create the bar chart with subplots
+univariate_vis <- ggplot(treemoist_long, aes(x = factor(value), fill = factor(value))) +
+  geom_bar(stat = "count") +
+  theme_bw() +
+  xlab("Category") +
+  ylab("Count") +
+  ggtitle("Univariate Graphical Visualisation") +
+  labs(caption = "Caption") +
+  facet_wrap(~ factor(variable, labels = custom_labels), scales = "free_x", ncol = 2) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1, vjust = 1),
+        panel.grid.major = element_line(colour = "grey90"),
+        panel.grid.minor = element_line(colour = "grey95"),
+        strip.background = element_rect(fill = "lightblue", colour = "black", size = 1),
+        strip.text = element_text(face = "bold", size = 8, colour = "black"),
+        plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        plot.caption = element_text(size = 10, hjust = 1))
+
+univariate_vis
 ```
 
+```{r}
+ggsave("univariate_graphical.pdf", plot = univariate_vis, width = 7, height = 5, units = "in", dpi = 300)
+```
+
+Bivariate Correlation
+
+```{r}
+variables_to_correlate <- treemoist[, c("branch", "transpiration", "branch_location", "species")]
+
+# Calculate the correlation matrix
+cor_matrix <- cor(variables_to_correlate, treemoist$moist_content)
+
+# Extract the correlations for moist_content
+correlations <- cor_matrix[, 1]
+
+correlations
+```
+
+```{r}
+# Export as a LaTeX table
+xtable(cor(variables_to_correlate, treemoist$moist_content))
+```
+
+Bivariate graphical
+
+```{r}
+
+# Create the plot
+bivariate_vis <- ggplot(treemoist_long, aes(x = factor(value), y = moist_content)) +
+  geom_boxplot() +
+  theme_bw() +
+  xlab("Factor") +
+  ylab("Mositure Content") +
+  ggtitle("Bivariate Graphical Visualisation") +
+  facet_wrap(~ factor(variable, labels = custom_labels), scales = "free", ncol = 4) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1),
+        panel.grid.major = element_line(colour = "grey90"),
+        panel.grid.minor = element_line(colour = "grey95"),
+        strip.background = element_rect(fill = "lightblue", colour = "black", size = 1),
+        strip.text = element_text(face = "bold", size = 8, colour = "black"),
+        plot.title = element_text(face = "bold", size = 12, hjust = 0.5),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        plot.caption = element_text(size = 10, face = "italic", hjust = 1))
+
+bivariate_vis
+```
+
+```{r}
+ggsave("bivariate_graphical.pdf", plot = bivariate_vis, width = 7, height = 5, units = "in", dpi = 300)
+```
+
+```{r}
+layer_data(bivariate_vis, 1)
+```
+
+\
